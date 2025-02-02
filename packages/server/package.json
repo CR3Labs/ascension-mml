@@ -23,6 +23,7 @@
     "express": "4.19.2",
     "express-ws": "5.0.2",
     "http-proxy": "^1.18.1",
+    "jwt-decode": "^4.0.0",
     "networked-dom-server": "0.14.0",
     "web-client": "0.0.1",
     "ws": "8.17.0"
