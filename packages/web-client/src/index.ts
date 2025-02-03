@@ -29,7 +29,7 @@ const app = new Networked3dWebExperienceClient(holder, {
       hdrUrl: "/web-client/assets/hdr/UnearthlyRed4k.hdr",
     },
     sun: {
-      intensity: 10,
+      intensity: 5,
     },
     ambientLight: {
       intensity: 4,

@@ -67,10 +67,11 @@ export class OtherPageAuthenticator {
         sessionToken,
         userData: {
           username: decoded.username || decoded.avatar.name,
-          characterDescription: {
-            // TODO: get the mml url from the decoded token
-            mmlCharacterUrl: decoded.avatar.mmlUrl,
-          },
+          characterDescription: decoded.avatar.mmlUrl
+            ? {
+                mmlCharacterUrl: decoded.avatar.mmlUrl,
+              }
+            : this.defaultCharacter,
         },
       };
       this.userBySessionToken.set(sessionToken, user);

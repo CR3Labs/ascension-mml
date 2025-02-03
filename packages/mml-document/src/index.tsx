@@ -6,12 +6,16 @@ import { createRoot } from "react-dom/client";
 // import FirstFloor from "./floors/FirstFloor";
 // import GroundFloor from "./floors/GroundFloor";
 // import SecondFloor from "./floors/SecondFloor";
-import Lamp from "./components/furniture/Lamp";
 import Elevator from "./components/structures/Elevator";
 
 function App() {
   return (
     <>
+      <m-audio
+        src="https://mmlstorage.com/9d91125802d0216da1322ccd337739ded2fe0c609b9b21b16b96b77ab5c4e550"
+        loop="true"
+        volume="1"
+      ></m-audio>
       <m-light
         intensity="5000000"
         color="red"
