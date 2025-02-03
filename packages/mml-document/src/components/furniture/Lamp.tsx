@@ -54,7 +54,7 @@ export default function Lamp(props: GroupProps) {
                 type="spotlight"
                 z={-0.08}
                 rx={90}
-                intensity={0.5}
+                intensity={500}
                 color="yellow"
               />
               <m-light type="point" z={-0.08} intensity={0.25} color="yellow" />

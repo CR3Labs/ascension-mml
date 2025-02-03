@@ -1,5 +1,7 @@
 import { Networked3dWebExperienceClient } from "@mml-io/3d-web-experience-client";
 
+import { Room } from "./Room";
+
 const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
 const host = window.location.host;
 const userNetworkAddress = `${protocol}//${host}/network`;
@@ -17,11 +19,20 @@ const app = new Networked3dWebExperienceClient(holder, {
     idleAnimationFileUrl: "/web-client/assets/models/anim_idle.glb",
     jogAnimationFileUrl: "/web-client/assets/models/anim_jog.glb",
     sprintAnimationFileUrl: "/web-client/assets/models/anim_run.glb",
-    doubleJumpAnimationFileUrl: "/web-client/assets/models/anim_double_jump.glb",
+    doubleJumpAnimationFileUrl:
+      "/web-client/assets/models/anim_double_jump.glb",
   },
   environmentConfiguration: {
+    // groundPlane: false,
     skybox: {
-      hdrJpgUrl: "/web-client/assets/hdr/puresky_2k.jpg",
+      // hdrJpgUrl: "/web-client/assets/hdr/puresky_2k.jpg",
+      hdrUrl: "/web-client/assets/hdr/UnearthlyRed4k.hdr",
+    },
+    sun: {
+      intensity: 10,
+    },
+    ambientLight: {
+      intensity: 4,
     },
   },
   avatarConfiguration: {
@@ -32,5 +43,22 @@ const app = new Networked3dWebExperienceClient(holder, {
       url: `${protocol}//${host}/mml-document`,
     },
   },
+  loadingScreen: {
+    background: "#333333",
+    // backgroundImageUrl?: string;
+    // backgroundBlurAmount?: number;
+    // overlayLayers?: Array<{
+    //     overlayImageUrl: string;
+    //     overlayAnchor: "top-left" | "top-right" | "bottom-left" | "bottom-right";
+    //     overlayOffset?: {
+    //         x: number;
+    //         y: number;
+    //     };
+    // }>;
+    title: "Other Page",
+    subtitle: "Loading your 3D experience...",
+    color: "#ffffff",
+  },
 });
+
 app.update();

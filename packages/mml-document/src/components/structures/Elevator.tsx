@@ -81,7 +81,7 @@ export default function Elevator(props: ElevatorProps) {
   const newY = targetFloor * height;
 
   return (
-    <m-group {...rest} y={0.01}>
+    <m-group {...rest}>
       <m-cube
         width={externalWidth / 2}
         depth={externalDepth + 0.25}
@@ -89,7 +89,7 @@ export default function Elevator(props: ElevatorProps) {
         x={-externalWidth * 0.75}
         y={height * levels * 0.5}
         height={height * levels}
-        color={"#EEE"}
+        color={"#000"}
       ></m-cube>
       <m-cube
         width={externalWidth / 2}
@@ -98,7 +98,7 @@ export default function Elevator(props: ElevatorProps) {
         x={externalWidth * 0.75}
         y={height * levels * 0.5}
         height={height * levels}
-        color={"#EEE"}
+        color={"#000"}
       ></m-cube>
       <BasicRoom
         width={externalWidth}
@@ -118,7 +118,7 @@ export default function Elevator(props: ElevatorProps) {
                 z={externalDepth / 2 + 0.1}
                 width={3}
                 height={height - floorGap}
-                color={"#DDD"}
+                color={"#010101"}
                 open={i === targetFloor && openAtTarget}
               />
               <m-cube
@@ -128,7 +128,7 @@ export default function Elevator(props: ElevatorProps) {
                 x={0}
                 y={height - floorGap / 2}
                 height={floorGap}
-                color={"#EEE"}
+                color={"#000"}
               >
                 <m-label
                   content={`Floor ${i + 1}`}
@@ -136,7 +136,8 @@ export default function Elevator(props: ElevatorProps) {
                   height={floorGap * 0.75}
                   z={0.133}
                   width={externalWidth - 0.1}
-                  color={"#EEE"}
+                  color={"#010101"}
+                  font-color="#333"
                 />
               </m-cube>
               <SimpleSwitch
@@ -186,7 +187,7 @@ export default function Elevator(props: ElevatorProps) {
               width={3}
               height={height - floorGap}
               open={openAtTarget}
-              color={"#DDD"}
+              color={"#010101"}
             />
             <m-label
               content="Up"
