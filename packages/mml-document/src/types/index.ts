@@ -25,6 +25,8 @@ export type Rotation = {
   rz?: string | number;
 };
 
+export type ElementProps = Position & Scale & Rotation;
+
 export type GroupProps = MGroupAttributes & {
   forwardRef?: React.Ref<MGroupElement>;
 };

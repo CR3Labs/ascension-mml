@@ -5,18 +5,20 @@ import url from "url";
 import { Networked3dWebExperienceServer } from "@mml-io/3d-web-experience-server";
 import type { CharacterDescription } from "@mml-io/3d-web-user-networking";
 import cors from "cors";
-import express, { static as expressStatic } from "express";
+import express, { json as expressJson, static as expressStatic } from "express";
 import enableWs from "express-ws";
 
 import { OtherPageAuthenticator } from "./OtherPageAuthenticator";
 import { ReactMMLDocumentServer } from "./router/ReactMMLDocumentServer";
 import { registerDolbyVoiceRoutes } from "./voice-routes";
+import { isPointInCube } from "./lib";
 
 const dirname = url.fileURLToPath(new URL(".", import.meta.url));
 const PORT = process.env.PORT || 8080;
 
 // --- Express WS Server ----------
 const { app } = enableWs(express());
+app.use(expressJson());
 app.enable("trust proxy");
 
 // --- Serve assets with CORS allowing all origins ---
@@ -90,6 +92,28 @@ const networked3dWebExperienceServer = new Networked3dWebExperienceServer({
   },
 });
 networked3dWebExperienceServer.registerExpressRoutes(app);
+
+// --- API ----------
+app.post("/api/badge", (req, res) => {
+  const clientId = Number(req.body.connectionId);
+  const u = userAuthenticator.getUserByClientId(Number(req.body.connectionId));
+
+  console.log(clientId,u);
+
+  if (u) {
+    const user = (networked3dWebExperienceServer as any).userNetworkingServer.allClientsById.get(clientId);
+
+    // TODO: validate user isnt cheating?
+    console.log(user.update, user.lastPong);
+
+    const isInCube = isPointInCube(user.update.position, { x: 0, y: 0, z: 0 }, 10);
+    console.log("isInCube", isInCube);
+    // TODO: send to OP API to claim badge
+    console.log("claim badge for user:", u.sub);
+  }
+
+  res.json({ message: "Badge claimed" });
+});
 
 // Start listening
 console.log("Listening on port", PORT);

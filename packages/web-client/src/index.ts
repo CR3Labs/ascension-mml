@@ -23,16 +23,19 @@ const app = new Networked3dWebExperienceClient(holder, {
       "/web-client/assets/models/anim_double_jump.glb",
   },
   environmentConfiguration: {
-    // groundPlane: false,
+    groundPlane: false,
     skybox: {
+      hdrJpgUrl: "/web-client/assets/hdr/grass_sky_2k.jpg",
       // hdrJpgUrl: "/web-client/assets/hdr/puresky_2k.jpg",
-      hdrUrl: "/web-client/assets/hdr/UnearthlyRed4k.hdr",
     },
     sun: {
-      intensity: 5,
+      intensity: 0.1,
+    },
+    postProcessing: {
+      // bloomIntensity: 1,
     },
     ambientLight: {
-      intensity: 4,
+      intensity: 0.1,
     },
   },
   avatarConfiguration: {
@@ -44,7 +47,7 @@ const app = new Networked3dWebExperienceClient(holder, {
     },
   },
   loadingScreen: {
-    background: "#333333",
+    background: "#28393d",
     // backgroundImageUrl?: string;
     // backgroundBlurAmount?: number;
     // overlayLayers?: Array<{
@@ -55,8 +58,8 @@ const app = new Networked3dWebExperienceClient(holder, {
     //         y: number;
     //     };
     // }>;
-    title: "Other Page",
-    subtitle: "Loading your 3D experience...",
+    title: "ASCENSION",
+    subtitle: "Loading...",
     color: "#ffffff",
   },
 });
