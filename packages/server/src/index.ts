@@ -8,10 +8,10 @@ import cors from "cors";
 import express, { json as expressJson, static as expressStatic } from "express";
 import enableWs from "express-ws";
 
+import { isPointInCube } from "./lib";
 import { OtherPageAuthenticator } from "./OtherPageAuthenticator";
 import { ReactMMLDocumentServer } from "./router/ReactMMLDocumentServer";
 import { registerDolbyVoiceRoutes } from "./voice-routes";
-import { isPointInCube } from "./lib";
 
 const dirname = url.fileURLToPath(new URL(".", import.meta.url));
 const PORT = process.env.PORT || 8080;
@@ -98,16 +98,20 @@ app.post("/api/badge", (req, res) => {
   const clientId = Number(req.body.connectionId);
   const u = userAuthenticator.getUserByClientId(Number(req.body.connectionId));
 
-  console.log(clientId,u);
-
   if (u) {
-    const user = (networked3dWebExperienceServer as any).userNetworkingServer.allClientsById.get(clientId);
+    const user = (
+      networked3dWebExperienceServer as any
+    ).userNetworkingServer.allClientsById.get(clientId);
 
-    // TODO: validate user isnt cheating?
-    console.log(user.update, user.lastPong);
+    // basic cheat vaidations
+    const timeSinceLastPong = user.lastPong ? Date.now() - user.lastPong : 0;
+    const isInCube = isPointInCube(
+      user.update.position,
+      { x: 39.6943473815918, y: -17.96050453186035, z: 33.138572692871094 },
+      20,
+    );
+    console.log("isInCube", isInCube, "timeSinceLastPong", timeSinceLastPong);
 
-    const isInCube = isPointInCube(user.update.position, { x: 0, y: 0, z: 0 }, 10);
-    console.log("isInCube", isInCube);
     // TODO: send to OP API to claim badge
     console.log("claim badge for user:", u.sub);
   }

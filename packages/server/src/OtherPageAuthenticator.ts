@@ -53,13 +53,12 @@ export class OtherPageAuthenticator {
     }
 
     let user = this.userBySessionToken.get(sessionToken);
-
     if (!user) {
       let decoded: any;
       try {
         // TODO:attempt to decode and validate the idToken
         decoded = jwtDecode(sessionToken);
-        console.log("decoded", decoded);
+        // console.log("decoded", decoded);
       } catch (err) {
         console.error("Error decoding session token", err);
         return null;
