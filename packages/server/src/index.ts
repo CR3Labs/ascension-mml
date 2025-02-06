@@ -103,12 +103,12 @@ app.post("/api/badge", (req, res) => {
       networked3dWebExperienceServer as any
     ).userNetworkingServer.allClientsById.get(clientId);
 
-    // basic cheat vaidations
+    // basic anti-cheat
     const timeSinceLastPong = user.lastPong ? Date.now() - user.lastPong : 0;
     const isInCube = isPointInCube(
       user.update.position,
-      { x: 39.6943473815918, y: -17.96050453186035, z: 33.138572692871094 },
-      20,
+      { x: -81.81199645996094, y: 545.68798828125, z: 18.8799991607666 },
+      10,
     );
     console.log("isInCube", isInCube, "timeSinceLastPong", timeSinceLastPong);
 

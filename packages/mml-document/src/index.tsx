@@ -65,7 +65,6 @@ function App() {
           z={-55}
         ></m-model> */}
         <m-model
-          onClick={claimBadge}
           id="cannon"
           src="https://mmlstorage.com/02009524a2a20ec74eb90083a5b49711e81be65e9c262fb4f2a6d8eb692bb45c"
           sx={2}
