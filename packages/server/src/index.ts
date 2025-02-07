@@ -98,6 +98,20 @@ const networked3dWebExperienceServer = new Networked3dWebExperienceServer({
 networked3dWebExperienceServer.registerExpressRoutes(app);
 
 // --- API ----------
+
+app.get("/api/user/:connectionId", (req, res) => {
+  if (req.headers["x-api-key"] !== process.env.API_KEY) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+
+  const u = userAuthenticator.getUserByClientId(
+    Number(req.params.connectionId),
+  );
+
+  res.json(u?.userData?.username || "");
+});
+
 app.post("/api/badge", async (req, res) => {
   if (req.headers["x-api-key"] !== process.env.API_KEY) {
     res.status(401).json({ message: "Unauthorized" });
@@ -125,8 +139,8 @@ app.post("/api/badge", async (req, res) => {
     const timeSinceLastPong = user.lastPong ? Date.now() - user.lastPong : 0;
     const isInCube = isPointInCube(
       user.update.position,
-      { x: -57.544830322265625, y: 207.0556640625, z: 9.945984840393066 },
-      10,
+      { x: -62.089637756347656, y: 207.26670837402344, z: 10.05864429473877 },
+      20,
     );
     console.log("isInCube", isInCube, "timeSinceLastPong", timeSinceLastPong);
 

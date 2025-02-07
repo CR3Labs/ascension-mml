@@ -1,7 +1,15 @@
 import { MPositionProbeElement } from "@mml-io/mml-react-types";
 import React, { useEffect, useRef, useState } from "react";
 
-export default function Agent(props: { y: number; x: number; z: number }) {
+export type AgentProps = {
+  mml: string;
+  y?: number;
+  x?: number;
+  z?: number;
+  ry?: number;
+};
+
+export default function Agent({ mml, ...props }: AgentProps) {
   const probeRef = useRef<MPositionProbeElement>(null);
   const [visible, setVisible] = useState(false);
   const [isClaiming, setIsClaiming] = useState(false);
@@ -9,6 +17,23 @@ export default function Agent(props: { y: number; x: number; z: number }) {
 
   const [text, setText] = useState("");
   const [displayedText, setDisplayedText] = useState("");
+
+  const [user, setUser] = useState<any>(null);
+
+  const getUser = async (connectionId: string) => {
+    const response = await fetch(
+      `http://localhost:8080/api/user/${connectionId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Api-Key": process.env.API_KEY || "ascension-api-key",
+        },
+      },
+    );
+    const data = await response.json();
+    setUser(data);
+  };
 
   const claimBadge = (e: any) => {
     if (isClaiming) return;
@@ -20,7 +45,6 @@ export default function Agent(props: { y: number; x: number; z: number }) {
         "X-Api-Key": process.env.API_KEY || "ascension-api-key",
       },
       body: JSON.stringify({
-        badgeId: "test",
         connectionId: e.detail.connectionId,
       }),
     })
@@ -70,16 +94,23 @@ export default function Agent(props: { y: number; x: number; z: number }) {
   useEffect(() => {
     probeRef.current?.addEventListener("positionenter", (e: any) => {
       const { connectionId } = e.detail;
-      setVisible(true);
-      setText("Weelcome, you've come a long way... click the badge to claim.");
+      getUser(connectionId);
     });
     probeRef.current?.addEventListener("positionleave", (e: any) => {
       const { connectionId } = e.detail;
       setVisible(false);
       setClaimed(false);
       setText("");
+      setUser("");
     });
   }, []);
+
+  useEffect(() => {
+    setVisible(true);
+    setText(
+      `Welcome, ${user}. You've come a long way... click the badge to claim.`,
+    );
+  }, [user]);
 
   return (
     <m-group {...props}>
@@ -92,7 +123,7 @@ export default function Agent(props: { y: number; x: number; z: number }) {
         y={2}
         x={0.75}
         width={1}
-        height={0.2}
+        height={0.3}
         visible={visible}
       />
       <m-position-probe
@@ -106,7 +137,7 @@ export default function Agent(props: { y: number; x: number; z: number }) {
         sy={1.15}
         sz={1.15}
         anim="https://cdn.other.page/animation/idle_cleaned.glb"
-        src="https://cdn.other.page/m/avatar-n1x.mml.glb"
+        src={mml}
       ></m-character>
 
       <m-cylinder

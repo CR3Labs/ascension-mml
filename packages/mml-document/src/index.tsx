@@ -15,9 +15,31 @@ function App() {
         y={224}
         x={-62}
         z={10}
-        debug="true"
       ></m-audio>
-      <Agent y={207.1} x={-57} z={8} />
+      <Agent
+        mml={"https://cdn.other.page/m/avatar-p4g3.mml.glb"}
+        y={207.1}
+        x={-67}
+        z={10.5}
+        ry={90}
+      />
+      <Agent
+        mml={"https://cdn.other.page/m/avatar-n1x.mml.glb"}
+        y={207.1}
+        x={-56}
+        z={10.2}
+        ry={-90}
+      />
+      <m-group y={220} x={-60} z={10.2}>
+        <m-light type="spotlight" intensity={1000} color="#f58905"></m-light>
+        <m-light
+          type="spotlight"
+          intensity={1000}
+          color="#f58905"
+          rx={-180}
+          y={2}
+        ></m-light>
+      </m-group>
       <m-group ry={180} z={10}>
         <m-model
           y={-20}
@@ -122,9 +144,19 @@ function App() {
         <Elevator
           levels={64}
           x={64}
-          y={16.5}
+          y={16}
           z={-14}
-          ry={20}
+          ry={70}
+          sx={2}
+          sy={1.5}
+          sz={2}
+        ></Elevator>
+        <Elevator
+          levels={65}
+          x={64}
+          y={14.5}
+          z={16}
+          ry={-65}
           sx={2}
           sy={1.5}
           sz={2}
