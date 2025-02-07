@@ -11,7 +11,7 @@ type ElevatorProps = GroupProps & {
   externalDepth?: number;
 };
 
-const floorTime = 45;
+const floorTime = 100;
 const floorGap = 0.5;
 
 export default function Elevator(props: ElevatorProps) {

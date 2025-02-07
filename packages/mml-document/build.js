@@ -15,6 +15,9 @@ const buildOptions = {
   publicPath: "/",
   sourcemap: true,
   outdir: "build",
+  define: {
+    "process.env.API_KEY": JSON.stringify(process.env.API_KEY),
+  },
 };
 
 const args = process.argv.splice(2);

@@ -5,6 +5,7 @@ import url from "url";
 import { Networked3dWebExperienceServer } from "@mml-io/3d-web-experience-server";
 import type { CharacterDescription } from "@mml-io/3d-web-user-networking";
 import cors from "cors";
+import * as dotenv from "dotenv";
 import express, { json as expressJson, static as expressStatic } from "express";
 import enableWs from "express-ws";
 
@@ -13,8 +14,11 @@ import { OtherPageAuthenticator } from "./OtherPageAuthenticator";
 import { ReactMMLDocumentServer } from "./router/ReactMMLDocumentServer";
 import { registerDolbyVoiceRoutes } from "./voice-routes";
 
+dotenv.config();
+
 const dirname = url.fileURLToPath(new URL(".", import.meta.url));
 const PORT = process.env.PORT || 8080;
+const OP_API = "http://127.0.0.1:3003/v1"; // 'https://api.other.page/v1';
 
 // --- Express WS Server ----------
 const { app } = enableWs(express());
@@ -94,29 +98,67 @@ const networked3dWebExperienceServer = new Networked3dWebExperienceServer({
 networked3dWebExperienceServer.registerExpressRoutes(app);
 
 // --- API ----------
-app.post("/api/badge", (req, res) => {
+app.post("/api/badge", async (req, res) => {
+  if (req.headers["x-api-key"] !== process.env.API_KEY) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+
+  // Retrieve user from connectionId
   const clientId = Number(req.body.connectionId);
   const u = userAuthenticator.getUserByClientId(Number(req.body.connectionId));
 
+  if (!u) {
+    console.warn("User not found for connectionId", req.body.connectionId);
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+
   if (u) {
+    // perform basic anti-cheat
     const user = (
       networked3dWebExperienceServer as any
     ).userNetworkingServer.allClientsById.get(clientId);
 
-    // basic anti-cheat
+    console.log("user", user.update.position);
+
     const timeSinceLastPong = user.lastPong ? Date.now() - user.lastPong : 0;
     const isInCube = isPointInCube(
       user.update.position,
-      { x: -81.81199645996094, y: 545.68798828125, z: 18.8799991607666 },
+      { x: -57.544830322265625, y: 207.0556640625, z: 9.945984840393066 },
       10,
     );
     console.log("isInCube", isInCube, "timeSinceLastPong", timeSinceLastPong);
 
-    // TODO: send to OP API to claim badge
-    console.log("claim badge for user:", u.sub);
-  }
+    if (!isInCube && timeSinceLastPong < 3000) {
+      res.status(401).json({ message: "Invalid request" });
+      return;
+    }
 
-  res.json({ message: "Badge claimed" });
+    // POST to OP API to attribute badge
+    try {
+      const response = await fetch(
+        `${OP_API}/community/${process.env.OP_COMMUNITY_ID}/badge/${process.env.OP_BADGE_ID}/attribution`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Api-Key": process.env.OP_API_KEY || "ascension-api-key",
+          },
+          body: JSON.stringify({
+            wallet: u.wallet,
+            autoClaim: true,
+          }),
+        },
+      );
+
+      const responseBody = await response.json();
+      res.json(responseBody);
+    } catch (error) {
+      console.error("failed to attribute badge", error);
+      res.status(401).json({ message: "Failed to attribute badge" });
+    }
+  }
 });
 
 // Start listening

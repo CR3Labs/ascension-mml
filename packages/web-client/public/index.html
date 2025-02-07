@@ -10,5 +10,11 @@
   <body>
     <div id="app"></div>
     <script type="application/javascript" src="/web-client/index.js"></script>
+    <script type="application/javascript">
+      var jwt = window.location.search.split("=")[1];
+      if (jwt) {
+        document.cookie = `jwt=${jwt}; path=/;`;
+      }
+    </script>
   </body>
 </html>

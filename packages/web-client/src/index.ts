@@ -1,7 +1,5 @@
 import { Networked3dWebExperienceClient } from "@mml-io/3d-web-experience-client";
 
-import { Room } from "./Room";
-
 const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
 const host = window.location.host;
 const userNetworkAddress = `${protocol}//${host}/network`;
@@ -25,17 +23,18 @@ const app = new Networked3dWebExperienceClient(holder, {
   environmentConfiguration: {
     groundPlane: false,
     skybox: {
-      hdrJpgUrl: "/web-client/assets/hdr/grass_sky_2k.jpg",
+      // hdrJpgUrl: "/web-client/assets/hdr/grass_sky_2k.jpg",wd
       // hdrJpgUrl: "/web-client/assets/hdr/puresky_2k.jpg",
+      hdrUrl: "/web-client/assets/hdr/overcast_puresky_4k.hdr",
     },
     sun: {
-      intensity: 0.1,
+      intensity: 0,
     },
     postProcessing: {
-      // bloomIntensity: 1,
+      bloomIntensity: 0.5,
     },
     ambientLight: {
-      intensity: 0.1,
+      intensity: 1,
     },
   },
   avatarConfiguration: {

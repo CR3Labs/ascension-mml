@@ -16,6 +16,8 @@ export type AuthUser = {
   sessionToken: string;
   // other page user subject - this is the user's uuid
   sub?: string;
+  // wallet address - this is the user's primary wallet address
+  wallet?: string;
 };
 
 export type OtherPageAuthenticatorOptions = Record<string, any>;
@@ -73,6 +75,7 @@ export class OtherPageAuthenticator {
         clientId: null,
         sessionToken,
         sub: decoded.sub,
+        wallet: decoded.wallet,
         userData: {
           username: decoded.username || decoded.avatar.name,
           characterDescription: decoded.avatar.mmlUrl
