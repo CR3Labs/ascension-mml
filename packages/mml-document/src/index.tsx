@@ -59,24 +59,17 @@ function App() {
           y={-8}
           z={-10}
         ></m-model>
-        <m-group x={46} y={32} z={-25} rx={320} rz={10} ry={180}>
-          <m-light type="spotlight" intensity={1000} color="#f58905"></m-light>
-          <m-light
-            type="spotlight"
-            intensity={1000}
-            color="#f58905"
-            rx={-180}
-            y={2}
-          ></m-light>
+        <m-group x={39} y={32} z={-25} rx={-20} rz={10} ry={180}>
+          <m-light type="spotlight" intensity={500} color="#f58905"></m-light>
         </m-group>
         <m-model
-          sx={0.2}
-          sy={0.2}
-          sz={0.2}
+          sx={0.1}
+          sy={0.1}
+          sz={0.1}
           ry={-90}
-          x={48}
-          y={15}
-          z={-20}
+          x={34}
+          y={15.8}
+          z={-24}
           src="https://mmlstorage.com/48b6358bf53f9f5ad951c0de6a883f3cf888d752ffa406c32b99e2263fde9df5"
         ></m-model>
         <m-group ry={-50} x={70} y={27} z={-20}>
