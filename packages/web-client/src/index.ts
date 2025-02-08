@@ -23,12 +23,10 @@ const app = new Networked3dWebExperienceClient(holder, {
   environmentConfiguration: {
     groundPlane: false,
     skybox: {
-      // hdrJpgUrl: "/web-client/assets/hdr/grass_sky_2k.jpg",wd
-      // hdrJpgUrl: "/web-client/assets/hdr/puresky_2k.jpg",
-      hdrUrl: "/web-client/assets/hdr/overcast_puresky_4k.hdr",
+      hdrJpgUrl: "/web-client/assets/hdr/nebula_4k.jpg",
     },
     sun: {
-      intensity: 1,
+      intensity: 2,
     },
     postProcessing: {
       bloomIntensity: 0.5,
@@ -43,7 +41,7 @@ const app = new Networked3dWebExperienceClient(holder, {
     },
   },
   loadingScreen: {
-    background: "#28393d",
+    background: "#161616",
     // backgroundImageUrl?: string;
     // backgroundBlurAmount?: number;
     // overlayLayers?: Array<{
