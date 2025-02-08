@@ -58,9 +58,8 @@ export class OtherPageAuthenticator {
     if (!user) {
       let decoded: any;
       try {
-        // TODO:attempt to decode and validate the idToken
+        // TODO: validate the idToken
         decoded = jwtDecode(sessionToken);
-        // console.log("decoded", decoded);
       } catch (err) {
         console.error("Error decoding session token", err);
         return null;
@@ -129,6 +128,10 @@ export class OtherPageAuthenticator {
     return this.usersByClientId.get(clientId);
   }
 
+  public setUserByClientId(clientId: number, user: AuthUser) {
+    this.usersByClientId.set(clientId, user);
+  }
+
   public onClientUserIdentityUpdate(): UserData | null {
     console.log(`onClientUserIdentityUpdate`);
     // This implementation does not allow updating user data after initial connect.
@@ -146,6 +149,22 @@ export class OtherPageAuthenticator {
     if (userData) {
       userData.clientId = null;
       this.usersByClientId.delete(clientId);
+    }
+  }
+
+  public isValidToken(token: string): boolean {
+    try {
+      const decoded: any = jwtDecode(token);
+      if (decoded && decoded.exp) {
+        const currentTime = Math.floor(Date.now() / 1000);
+        return currentTime < decoded.exp; // Check if the token is expired
+      }
+
+      // TODO: validate using jwks endpoint
+
+      return false; // No exp claim means invalid token
+    } catch (err) {
+      return false; // Token is invalid
     }
   }
 }

@@ -36,6 +36,7 @@ function App() {
           type="spotlight"
           intensity={1000}
           color="#f58905"
+          // color="#fff"
           rx={-180}
           y={2}
         ></m-light>

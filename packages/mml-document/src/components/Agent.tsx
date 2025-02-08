@@ -1,6 +1,8 @@
 import { MPositionProbeElement } from "@mml-io/mml-react-types";
 import React, { useEffect, useRef, useState } from "react";
 
+const API_URL = process.env.API_URL || "http://127.0.0.1:8080/api";
+
 export type AgentProps = {
   mml: string;
   y?: number;
@@ -21,28 +23,25 @@ export default function Agent({ mml, ...props }: AgentProps) {
   const [user, setUser] = useState<any>(null);
 
   const getUser = async (connectionId: string) => {
-    const response = await fetch(
-      `http://localhost:8080/api/user/${connectionId}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Api-Key": process.env.API_KEY || "ascension-api-key",
-        },
+    const response = await fetch(`${API_URL}/user/${connectionId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Api-Key": process.env.API_KEY || "ascension-api-key",
       },
-    );
+    });
     const data = await response.json();
-    setUser(data);
+    setUser(data?.name || "");
   };
 
   const claimBadge = (e: any) => {
     if (isClaiming) return;
     setIsClaiming(true);
-    fetch("http://localhost:8080/api/badge", {
+    fetch(`${API_URL}/badge`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-Api-Key": process.env.API_KEY || "ascension-api-key",
+        "X-Api-Key": process.env.API_KEY || "mml-api-key",
       },
       body: JSON.stringify({
         connectionId: e.detail.connectionId,
@@ -84,7 +83,7 @@ export default function Agent({ mml, ...props }: AgentProps) {
       } else {
         clearInterval(typingInterval);
       }
-    }, 90);
+    }, 50);
 
     return () => {
       clearInterval(typingInterval);
@@ -106,9 +105,10 @@ export default function Agent({ mml, ...props }: AgentProps) {
   }, []);
 
   useEffect(() => {
+    if (!user) return;
     setVisible(true);
     setText(
-      `Welcome, ${user}. You've come a long way... click the badge to claim.`,
+      `Weelcome${user ? `, ${user}` : ""}. You've come a long way... click the badge to claim.`,
     );
   }, [user]);
 

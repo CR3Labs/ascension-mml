@@ -28,17 +28,14 @@ const app = new Networked3dWebExperienceClient(holder, {
       hdrUrl: "/web-client/assets/hdr/overcast_puresky_4k.hdr",
     },
     sun: {
-      intensity: 0,
+      intensity: 1,
     },
     postProcessing: {
       bloomIntensity: 0.5,
     },
     ambientLight: {
-      intensity: 1,
+      intensity: 3,
     },
-  },
-  avatarConfiguration: {
-    availableAvatars: [],
   },
   mmlDocuments: {
     index: {

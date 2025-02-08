@@ -18,7 +18,7 @@ dotenv.config();
 
 const dirname = url.fileURLToPath(new URL(".", import.meta.url));
 const PORT = process.env.PORT || 8080;
-const OP_API = "http://127.0.0.1:3003/v1"; // 'https://api.other.page/v1';
+const OP_API = process.env.OP_API || "http://127.0.0.1:3003/v1";
 
 // --- Express WS Server ----------
 const { app } = enableWs(express());
@@ -99,6 +99,8 @@ networked3dWebExperienceServer.registerExpressRoutes(app);
 
 // --- API ----------
 
+// server routes
+
 app.get("/api/user/:connectionId", (req, res) => {
   if (req.headers["x-api-key"] !== process.env.API_KEY) {
     res.status(401).json({ message: "Unauthorized" });
@@ -109,7 +111,7 @@ app.get("/api/user/:connectionId", (req, res) => {
     Number(req.params.connectionId),
   );
 
-  res.json(u?.userData?.username || "");
+  res.json({ name: u?.userData?.username || "" });
 });
 
 app.post("/api/badge", async (req, res) => {
@@ -173,6 +175,56 @@ app.post("/api/badge", async (req, res) => {
       res.status(401).json({ message: "Failed to attribute badge" });
     }
   }
+});
+
+// user routes
+
+app.patch("/api/me/avatar", (req, res) => {
+  if (!req.headers["authorization"]) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+
+  // TODO: validate the idToken?
+  const token = (req.headers["authorization"] as string)?.replace(
+    "Bearer ",
+    "",
+  );
+  const sess = userAuthenticator.getClientIdForSessionToken(token);
+
+  if (!sess?.id) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+
+  const u = userAuthenticator.getUserByClientId(sess.id);
+
+  if (!u?.userData?.characterDescription) {
+    res.status(500).json({ message: "Unable to update avatar" });
+    return;
+  }
+
+  const { mmlUrl, name } = req.body;
+  if (!mmlUrl || !name) {
+    res.status(400).json({ message: "Missing mmlUrl or name" });
+    return;
+  }
+
+  networked3dWebExperienceServer.updateUserCharacter(sess.id, {
+    username: name,
+    characterDescription: {
+      mmlCharacterUrl: req.body.mmlUrl,
+    },
+  });
+  userAuthenticator.setUserByClientId(sess.id, {
+    ...u,
+    userData: {
+      ...u.userData,
+      username: name,
+    },
+  });
+
+  res.json({ message: "Avatar updated" });
 });
 
 // Start listening
