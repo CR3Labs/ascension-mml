@@ -204,9 +204,14 @@ app.patch("/api/me/avatar", (req, res) => {
     return;
   }
 
-  const { mmlUrl, name } = req.body;
-  if (!mmlUrl || !name) {
-    res.status(400).json({ message: "Missing mmlUrl or name" });
+  const { name, mmlUrl, mmlModel } = req.body;
+  if (!name) {
+    res.status(400).json({ message: "Missing avatarname" });
+    return;
+  }
+
+  if (!mmlUrl && !mmlModel) {
+    res.status(400).json({ message: "Missing mmlUrl or mmlModel" });
     return;
   }
 
@@ -214,6 +219,7 @@ app.patch("/api/me/avatar", (req, res) => {
     username: name,
     characterDescription: {
       mmlCharacterUrl: req.body.mmlUrl,
+      meshFileUrl: req.body.mmlModel,
     },
   });
   userAuthenticator.setUserByClientId(sess.id, {

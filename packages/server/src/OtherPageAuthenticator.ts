@@ -80,6 +80,7 @@ export class OtherPageAuthenticator {
           characterDescription: decoded.avatar.mmlUrl
             ? {
                 mmlCharacterUrl: decoded.avatar.mmlUrl,
+                meshFileUrl: decoded.avatar.mmlModel,
               }
             : this.defaultCharacter,
         },
