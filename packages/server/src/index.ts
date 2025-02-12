@@ -94,10 +94,12 @@ const MML_DOCUMENT_PATH = path.join(
   dirname,
   "../../mml-document/build/index.js",
 );
-const mmlDocumentServer = new ReactMMLDocumentServer(MML_DOCUMENT_PATH);
-app.ws("/mml-document", (ws) => {
-  mmlDocumentServer.handle(ws);
-});
+const mmlDocumentServer = new ReactMMLDocumentServer(
+  MML_DOCUMENT_PATH,
+  userAuthenticator,
+);
+
+app.ws("/mml-document", (ws, req) => mmlDocumentServer.handle(ws, req));
 
 // --- API ----------
 
@@ -108,15 +110,21 @@ app.get("/api/user/:connectionId", (req, res) => {
     return;
   }
 
-  const internalId = mmlDocumentServer.getInternalId(
+  const jwt = mmlDocumentServer.getJwtForExternalId(
     Number(req.params.connectionId),
   );
 
-  console.log("internalId", internalId);
+  if (jwt) {
+    const clientId = userAuthenticator.getClientIdForSessionToken(jwt)?.id;
+    if (!clientId) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
 
-  const u = userAuthenticator.getUserByClientId(Number(internalId));
+    const u = userAuthenticator.getUserByClientId(clientId);
 
-  res.json({ name: u?.userData?.username || "" });
+    res.json({ name: u?.userData?.username || "" });
+  }
 });
 
 app.post("/api/badge", async (req, res) => {
@@ -126,8 +134,22 @@ app.post("/api/badge", async (req, res) => {
   }
 
   // Retrieve user from connectionId
-  const clientId = Number(req.body.connectionId);
-  const u = userAuthenticator.getUserByClientId(Number(req.body.connectionId));
+  const jwt = mmlDocumentServer.getJwtForExternalId(
+    Number(req.body.connectionId),
+  );
+
+  if (!jwt) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+
+  const clientId = userAuthenticator.getClientIdForSessionToken(jwt)?.id;
+  if (!clientId) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+
+  const u = userAuthenticator.getUserByClientId(clientId);
 
   if (!u) {
     console.warn("User not found for connectionId", req.body.connectionId);

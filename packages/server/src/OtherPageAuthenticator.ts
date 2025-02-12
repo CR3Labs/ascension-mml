@@ -124,13 +124,24 @@ export class OtherPageAuthenticator {
     return { id: user.clientId };
   }
 
+  public getClientIdForJwtCookie(cookie: string): number | null {
+    const jwtCookie = cookie
+      .split(";")
+      .find((c) => c.trim().startsWith("jwt="));
+    if (!jwtCookie) {
+      return null;
+    }
+    const user = this.userBySessionToken.get(jwtCookie);
+    return user?.clientId || null;
+  }
+
   public getUserByClientId(clientId: number): AuthUser | undefined {
     console.log("getUserByClientId", clientId);
     return this.usersByClientId.get(clientId);
   }
 
   public setUserByClientId(clientId: number, user: AuthUser) {
-    console.log("setUserByClientId", clientId, user);
+    console.log("setUserByClientId", clientId, user.sub);
     this.usersByClientId.set(clientId, user);
   }
 
@@ -160,6 +171,14 @@ export class OtherPageAuthenticator {
       this.usersByClientId.delete(clientId);
       // this.userBySessionToken.delete(userData.sessionToken);
     }
+  }
+
+  public getJwtFromCookie(cookie: string): string | null {
+    const jwtCookie = cookie
+      .split(";")
+      .find((c) => c.trim().startsWith("jwt="));
+
+    return jwtCookie ? jwtCookie.split("=")[1] : null;
   }
 
   public isValidToken(token: string): boolean {

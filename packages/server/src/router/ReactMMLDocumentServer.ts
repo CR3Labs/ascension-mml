@@ -6,7 +6,10 @@ import {
   LocalObservableDOMFactory,
 } from "@mml-io/networked-dom-server";
 import * as chokidar from "chokidar";
+import { Request } from "express";
 import * as WebSocket from "ws";
+
+import { OtherPageAuthenticator } from "../OtherPageAuthenticator";
 
 const getMmlDocumentContent = (documentPath: string) => {
   const contents = fs.readFileSync(documentPath, {
@@ -18,8 +21,12 @@ const getMmlDocumentContent = (documentPath: string) => {
 
 export class ReactMMLDocumentServer {
   private mmlDocument: EditableNetworkedDOM;
+  private externalIdToJwt: Map<number, string> = new Map();
 
-  constructor(private mmlDocumentPath: string) {
+  constructor(
+    private mmlDocumentPath: string,
+    private otherPageAuthenticator: OtherPageAuthenticator,
+  ) {
     this.mmlDocument = new EditableNetworkedDOM(
       url.pathToFileURL(this.mmlDocumentPath).toString(),
       LocalObservableDOMFactory,
@@ -32,17 +39,32 @@ export class ReactMMLDocumentServer {
     this.reload();
   }
 
-  public handle(ws: WebSocket) {
+  public handle(ws: WebSocket, req: Request) {
+    const jwt = this.otherPageAuthenticator.getJwtFromCookie(
+      req.headers.cookie || "",
+    );
+
+    if (!jwt) {
+      ws.close();
+      return;
+    }
+
+    const conn = (this.mmlDocument as any).loadedState.networkedDOM;
     this.mmlDocument.addWebSocket(ws as any);
+
+    // save the jwt to the map
+    const ndom = conn.webSocketToNetworkedDOMConnection.get(ws);
+    const externalId = ndom.networkedDOM.currentConnectionId;
+    this.externalIdToJwt.set(externalId, jwt);
+
     ws.on("close", () => {
+      this.externalIdToJwt.delete(externalId);
       this.mmlDocument.removeWebSocket(ws as any);
     });
   }
 
-  public getInternalId(externalId: number) {
-    const conn = (this.mmlDocument as any).loadedState.networkedDOM;
-    const nDom = conn.connectionIdToNetworkedDOMConnection.get(externalId);
-    return nDom.internalIdToExternalId.get(externalId);
+  public getJwtForExternalId(externalId: number) {
+    return this.externalIdToJwt.get(externalId);
   }
 
   private reload() {
