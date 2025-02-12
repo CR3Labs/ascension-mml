@@ -39,6 +39,12 @@ export class ReactMMLDocumentServer {
     });
   }
 
+  public getInternalId(externalId: number) {
+    const conn = (this.mmlDocument as any).loadedState.networkedDOM;
+    const nDom = conn.connectionIdToNetworkedDOMConnection.get(externalId);
+    return nDom.internalIdToExternalId.get(externalId);
+  }
+
   private reload() {
     this.mmlDocument.load(getMmlDocumentContent(this.mmlDocumentPath));
   }

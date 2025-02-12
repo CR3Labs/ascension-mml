@@ -92,6 +92,7 @@ export default function Agent({ mml, ...props }: AgentProps) {
 
   useEffect(() => {
     probeRef.current?.addEventListener("positionenter", (e: any) => {
+      // console.log(JSON.stringify(e.detail));
       const { connectionId } = e.detail;
       getUser(connectionId);
     });

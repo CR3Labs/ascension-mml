@@ -13,6 +13,7 @@ import { isPointInCube } from "./lib";
 import { OtherPageAuthenticator } from "./OtherPageAuthenticator";
 import { ReactMMLDocumentServer } from "./router/ReactMMLDocumentServer";
 import { registerDolbyVoiceRoutes } from "./voice-routes";
+// import { BasicUserAuthenticator } from "./BasicUserAuthenticator";
 
 dotenv.config();
 
@@ -34,16 +35,6 @@ const DOLBY_APP_SECRET = process.env.DOLBY_APP_SECRET ?? "";
 if (DOLBY_APP_KEY && DOLBY_APP_SECRET) {
   registerDolbyVoiceRoutes(app, { DOLBY_APP_KEY, DOLBY_APP_SECRET });
 }
-
-// --- React MML Document Server ----------
-const MML_DOCUMENT_PATH = path.join(
-  dirname,
-  "../../mml-document/build/index.js",
-);
-const mmlDocumentServer = new ReactMMLDocumentServer(MML_DOCUMENT_PATH);
-app.ws("/mml-document", (ws) => {
-  mmlDocumentServer.handle(ws);
-});
 
 // --- User Authentication ----------
 
@@ -68,6 +59,7 @@ const defaultCharacter: CharacterDescription = {
 
 // UserAuthenticator
 const userAuthenticator = new OtherPageAuthenticator(defaultCharacter);
+// const userAuthenticator = new BasicUserAuthenticator(defaultCharacter);
 
 // --- Networked 3d Web Experience Server ----------
 
@@ -97,19 +89,32 @@ const networked3dWebExperienceServer = new Networked3dWebExperienceServer({
 });
 networked3dWebExperienceServer.registerExpressRoutes(app);
 
+// --- React MML Document Server ----------
+const MML_DOCUMENT_PATH = path.join(
+  dirname,
+  "../../mml-document/build/index.js",
+);
+const mmlDocumentServer = new ReactMMLDocumentServer(MML_DOCUMENT_PATH);
+app.ws("/mml-document", (ws) => {
+  mmlDocumentServer.handle(ws);
+});
+
 // --- API ----------
 
 // server routes
-
 app.get("/api/user/:connectionId", (req, res) => {
   if (req.headers["x-api-key"] !== process.env.API_KEY) {
     res.status(401).json({ message: "Unauthorized" });
     return;
   }
 
-  const u = userAuthenticator.getUserByClientId(
+  const internalId = mmlDocumentServer.getInternalId(
     Number(req.params.connectionId),
   );
+
+  console.log("internalId", internalId);
+
+  const u = userAuthenticator.getUserByClientId(Number(internalId));
 
   res.json({ name: u?.userData?.username || "" });
 });
@@ -191,7 +196,6 @@ app.patch("/api/me/avatar", (req, res) => {
     "",
   );
   const sess = userAuthenticator.getClientIdForSessionToken(token);
-
   if (!sess?.id) {
     res.status(401).json({ message: "Unauthorized" });
     return;

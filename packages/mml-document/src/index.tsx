@@ -18,6 +18,11 @@ function App() {
       ></m-audio>
       <Agent
         mml={"https://cdn.other.page/m/avatar-p4g3.mml.glb"}
+        y={-6}
+        x={-5}
+      />
+      <Agent
+        mml={"https://cdn.other.page/m/avatar-p4g3.mml.glb"}
         y={207.1}
         x={-67}
         z={10.5}
@@ -30,7 +35,7 @@ function App() {
         z={10.2}
         ry={-90}
       />
-      <m-group y={220} x={-60} z={10.2}>
+      <m-group y={225} x={-60} z={10.2}>
         <m-light type="spotlight" intensity={1000} color="#f58905"></m-light>
         <m-light
           type="spotlight"

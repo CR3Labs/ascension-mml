@@ -5,6 +5,7 @@ import type {
   CharacterDescription,
   UserData,
 } from "@mml-io/3d-web-user-networking";
+import { Request, Response } from "express";
 import { jwtDecode } from "jwt-decode";
 
 export type AuthUser = {
@@ -33,87 +34,84 @@ export class OtherPageAuthenticator {
     private options: OtherPageAuthenticatorOptions = defaultOptions,
   ) {}
 
-  async generateAuthorizedSessionToken(): Promise<string | null> {
-    console.log("Generating session token");
-    const sessionToken = crypto.randomBytes(20).toString("hex");
+  async generateAuthorizedSessionToken(req: Request): Promise<string | null> {
+    const sessionToken = req.query._s as string;
+
+    if (!sessionToken) {
+      return Promise.resolve(null);
+    }
+
+    // validate the session
+    let decoded: any;
+    try {
+      // TODO: validate the idToken expiration
+      decoded = jwtDecode(sessionToken);
+    } catch (err) {
+      console.error("Error decoding session token", err);
+      return null;
+    }
+
+    // TODO: validate using jwks endpoint
+    if (!decoded) {
+      return null;
+    }
+
     const authUser: AuthUser = {
       clientId: null,
       sessionToken,
+      sub: decoded.sub,
+      wallet: decoded.wallet,
+      userData: {
+        username: decoded.avatar?.name || decoded.username || decoded.wallet,
+        characterDescription:
+          decoded.avatar?.mmlUrl || decoded.avatar?.mmlModel
+            ? {
+                mmlCharacterUrl: decoded.avatar.mmlUrl,
+                meshFileUrl: decoded.avatar.mmlModel,
+              }
+            : this.defaultCharacter,
+      },
     };
 
-    this.userBySessionToken.set(sessionToken, authUser);
+    this.setUserBySessionToken(sessionToken, authUser);
+
     return Promise.resolve(sessionToken);
   }
 
   public onClientConnect(
     clientId: number,
     sessionToken: string,
-    userIdentityPresentedOnConnection?: UserIdentity,
   ): UserData | null {
+    console.log("onClientConnect", clientId);
     if (!sessionToken) {
       return null;
     }
 
-    let user = this.userBySessionToken.get(sessionToken);
-    if (!user) {
-      let decoded: any;
-      try {
-        // TODO: validate the idToken
-        decoded = jwtDecode(sessionToken);
-      } catch (err) {
-        console.error("Error decoding session token", err);
-        return null;
-      }
-
-      // TODO: validate using jwks endpoint
-      if (!decoded) {
-        return null;
-      }
-
-      user = {
-        clientId: null,
-        sessionToken,
-        sub: decoded.sub,
-        wallet: decoded.wallet,
-        userData: {
-          username: decoded.avatar?.name || decoded.username || `User ${clientId}`,
-          characterDescription:
-            decoded.avatar?.mmlUrl || decoded.avatar?.mmlModel
-              ? {
-                  mmlCharacterUrl: decoded.avatar.mmlUrl,
-                  meshFileUrl: decoded.avatar.mmlModel,
-                }
-              : this.defaultCharacter,
-        },
-      };
-      this.userBySessionToken.set(sessionToken, user);
-    }
-
-    if (user.clientId !== null) {
-      console.error(`Session token already connected`);
+    const user = this.userBySessionToken.get(sessionToken);
+    if (!user?.userData) {
       return null;
     }
 
-    user.clientId = clientId;
+    this.setUserBySessionToken(sessionToken, {
+      ...user,
+      clientId,
+    });
+    this.setUserByClientId(clientId, {
+      ...user,
+      clientId,
+    });
 
-    if (!user.userData) {
-      user.userData = {
-        username: `User ${clientId}`,
-        characterDescription: this.defaultCharacter,
-      };
-    }
-
-    if (userIdentityPresentedOnConnection) {
-      console.warn("Ignoring user-identity on initial connect");
-    }
-    this.usersByClientId.set(clientId, user);
     return user.userData;
   }
 
   public getClientIdForSessionToken(
     sessionToken: string,
   ): { id: number } | null {
+    if (!sessionToken) {
+      return null;
+    }
     const user = this.userBySessionToken.get(sessionToken);
+    console.log("getClientIdForSessionToken", user?.clientId);
 
     if (!user) {
       console.error("getClientIdForSessionToken - unknown session");
@@ -127,15 +125,24 @@ export class OtherPageAuthenticator {
   }
 
   public getUserByClientId(clientId: number): AuthUser | undefined {
+    console.log("getUserByClientId", clientId);
     return this.usersByClientId.get(clientId);
   }
 
   public setUserByClientId(clientId: number, user: AuthUser) {
+    console.log("setUserByClientId", clientId, user);
     this.usersByClientId.set(clientId, user);
   }
 
-  public onClientUserIdentityUpdate(): UserData | null {
-    console.log(`onClientUserIdentityUpdate`);
+  private setUserBySessionToken(sessionToken: string, user: AuthUser) {
+    this.userBySessionToken.set(sessionToken, user);
+  }
+
+  public onClientUserIdentityUpdate(
+    clientId: number,
+    data: any,
+  ): UserData | null {
+    console.log(`onClientUserIdentityUpdate`, clientId, data);
     // This implementation does not allow updating user data after initial connect.
 
     // To allow updating user data after initial connect, return the UserData object that reflects the requested change.
@@ -151,6 +158,7 @@ export class OtherPageAuthenticator {
     if (userData) {
       userData.clientId = null;
       this.usersByClientId.delete(clientId);
+      // this.userBySessionToken.delete(userData.sessionToken);
     }
   }
 

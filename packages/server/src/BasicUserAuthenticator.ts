@@ -48,7 +48,6 @@ export class BasicUserAuthenticator {
     sessionToken: string,
     userIdentityPresentedOnConnection?: UserIdentity,
   ): UserData | null {
-    console.log(`Client ID: ${clientId} joined with token`);
     let user = this.userBySessionToken.get(sessionToken);
     if (!user) {
       console.error(
@@ -80,6 +79,9 @@ export class BasicUserAuthenticator {
       console.warn("Ignoring user-identity on initial connect");
     }
     this.usersByClientId.set(clientId, user);
+
+    console.log(`Client ID: ${clientId} joined with session token`);
+
     return user.userData;
   }
 
