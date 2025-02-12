@@ -76,13 +76,14 @@ export class OtherPageAuthenticator {
         sub: decoded.sub,
         wallet: decoded.wallet,
         userData: {
-          username: decoded.username || decoded.avatar.name,
-          characterDescription: decoded.avatar.mmlUrl
-            ? {
-                mmlCharacterUrl: decoded.avatar.mmlUrl,
-                meshFileUrl: decoded.avatar.mmlModel,
-              }
-            : this.defaultCharacter,
+          username: decoded.avatar?.name || decoded.username || `User ${clientId}`,
+          characterDescription:
+            decoded.avatar?.mmlUrl || decoded.avatar?.mmlModel
+              ? {
+                  mmlCharacterUrl: decoded.avatar.mmlUrl,
+                  meshFileUrl: decoded.avatar.mmlModel,
+                }
+              : this.defaultCharacter,
         },
       };
       this.userBySessionToken.set(sessionToken, user);
