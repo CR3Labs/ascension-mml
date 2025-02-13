@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import BasicRoom from "./BasicRoom";
 import { GroupProps } from "../../types";
@@ -9,6 +9,7 @@ type ElevatorProps = GroupProps & {
   height?: number;
   externalWidth?: number;
   externalDepth?: number;
+  startDirection?: "up" | "down";
 };
 
 const floorTime = 100;
@@ -20,12 +21,14 @@ export default function Elevator(props: ElevatorProps) {
     height = 2,
     externalDepth = 3,
     externalWidth = 3,
+    startDirection = "up",
     ...rest
   } = props;
 
   const [startTime, setStartTime] = useState(0);
-  const [currentFloor, setCurrentFloor] = useState(0);
-  const [targetFloor, setTargetFloor] = useState(0);
+  const [currentFloor, setCurrentFloor] = useState(startDirection === "up" ? 0 : levels - 1);
+  const [targetFloor, setTargetFloor] = useState(startDirection === "up" ? 0 : levels - 1);
+  const [direction, setDirection] = useState<"up" | "down">(startDirection);
 
   const arrivalAtTargetFloorTime =
     startTime + Math.abs(currentFloor - targetFloor) * floorTime;
@@ -38,6 +41,7 @@ export default function Elevator(props: ElevatorProps) {
       setStartTime(document.timeline.currentTime as number);
       setCurrentFloor(targetFloor);
       setTargetFloor(targetFloor + (levels - 1));
+      setDirection("down");
     }
   }, [targetFloor, levels, arrivalAtTargetFloorTime]);
 
@@ -49,11 +53,28 @@ export default function Elevator(props: ElevatorProps) {
       setStartTime(document.timeline.currentTime as number);
       setCurrentFloor(targetFloor);
       setTargetFloor(targetFloor - (levels - 1));
+      setDirection("up");
     }
   }, [targetFloor, arrivalAtTargetFloorTime]);
 
+  const toggleElevator = useCallback(
+    (dir: "up" | "down") => {
+      if (dir === "up") {
+        goUp();
+      } else {
+        goDown();
+      }
+    },
+    [goUp, goDown],
+  );
+
   const startY = currentFloor * height;
   const newY = targetFloor * height;
+
+  useEffect(() => {
+    const interval = setInterval(() => toggleElevator(direction), 10000);
+    return () => clearInterval(interval); // Cleanup on unmount
+  }, [direction]);
 
   return (
     <m-group {...rest}>
@@ -80,14 +101,16 @@ export default function Elevator(props: ElevatorProps) {
             south: { invisible: true },
             north: { invisible: true },
             west: { invisible: true },
+            east: { invisible: true },
           }}
         >
-          <m-model src="https://mmlstorage.com/eb15f8eb8f27c0932ce6e0dd2df005b404d790b1c0d91cf3217149d0da8ebc56"
+          <m-model
+            src="https://mmlstorage.com/eb15f8eb8f27c0932ce6e0dd2df005b404d790b1c0d91cf3217149d0da8ebc56"
             sx={0.025}
             sy={0.025}
             sz={0.025}
           />
-          <SimpleSwitch
+          {/* <SimpleSwitch
             x={externalWidth / 2 - 0.08}
             y={1}
             z={-0.5}
@@ -101,7 +124,7 @@ export default function Elevator(props: ElevatorProps) {
             ry={-90}
             onClick={goUp}
             color="green"
-          />
+          /> */}
         </BasicRoom>
       </m-group>
     </m-group>

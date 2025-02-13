@@ -151,7 +151,7 @@ function App() {
           sz={2}
         ></Elevator>
         <Elevator
-          levels={65}
+          levels={64}
           x={64}
           y={14.5}
           z={16}
@@ -159,6 +159,7 @@ function App() {
           sx={2}
           sy={1.5}
           sz={2}
+          startDirection="down"
         ></Elevator>
         <m-character src="https://mmlstorage.com/T2ez8X/1738561418908.html"></m-character>
       </m-group>
