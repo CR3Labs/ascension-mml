@@ -1,0 +1,23 @@
+{
+  "name": "web-client",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "files": [
+    "/build"
+  ],
+  "scripts": {
+    "build": "rimraf ./build && node build.js --build",
+    "iterate": "node ./build.js --watch",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint \"./src/**/*.{ts,tsx}\" --max-warnings 0",
+    "lint:fix": "eslint \"./src/**/*.{ts,tsx}\" --fix"
+  },
+  "dependencies": {
+    "@mml-io/3d-web-experience-client": "0.21.3",
+    "three": "^0.164.1"
+  },
+  "devDependencies": {
+    "@types/three": "^0.164.1"
+  }
+}
